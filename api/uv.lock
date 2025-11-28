@@ -1849,15 +1849,6 @@ wheels = [
 ]
 
 [[package]]
-name = "eval-type-backport"
-version = "0.3.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/51/23/079e39571d6dd8d90d7a369ecb55ad766efb6bae4e77389629e14458c280/eval_type_backport-0.3.0.tar.gz", hash = "sha256:1638210401e184ff17f877e9a2fa076b60b5838790f4532a21761cc2be67aea1", size = 9272, upload-time = "2025-11-13T20:56:50.845Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/19/d8/2a1c638d9e0aa7e269269a1a1bf423ddd94267f1a01bbe3ad03432b67dd4/eval_type_backport-0.3.0-py3-none-any.whl", hash = "sha256:975a10a0fe333c8b6260d7fdb637698c9a16c3a9e3b6eb943fee6a6f67a37fe8", size = 6061, upload-time = "2025-11-13T20:56:49.499Z" },
-]
-
-[[package]]
 name = "faker"
 version = "32.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2433,12 +2424,8 @@ wheels = [
 ]
 
 [package.optional-dependencies]
-aiohttp = [
-    { name = "aiohttp" },
-]
-requests = [
-    { name = "requests" },
-    { name = "requests-toolbelt" },
+httpx = [
+    { name = "httpx" },
 ]
 
 [[package]]
@@ -6977,13 +6964,12 @@ wheels = [
 
 [[package]]
 name = "weave"
-version = "0.52.17"
+version = "0.52.20"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
     { name = "diskcache" },
-    { name = "eval-type-backport" },
-    { name = "gql", extra = ["aiohttp", "requests"] },
+    { name = "gql", extra = ["httpx"] },
     { name = "jsonschema" },
     { name = "packaging" },
     { name = "polyfile-weave" },
@@ -6993,9 +6979,9 @@ dependencies = [
     { name = "tzdata", marker = "sys_platform == 'win32'" },
     { name = "wandb" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/09/95/27e05d954972a83372a3ceb6b5db6136bc4f649fa69d8009b27c144ca111/weave-0.52.17.tar.gz", hash = "sha256:940aaf892b65c72c67cb893e97ed5339136a4b33a7ea85d52ed36671111826ef", size = 609149, upload-time = "2025-11-13T22:09:51.045Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/09/84/878bd57360c014e9b50b5a46606a1c3b3a5bf8c335e4a40d474fe4a3bd87/weave-0.52.20.tar.gz", hash = "sha256:02082d4ecd00d65914baa069b2a49442689692eddde7fc965e116e447fc4ed83", size = 622826, upload-time = "2025-11-26T22:45:44.76Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ed/0b/ae7860d2b0c02e7efab26815a9a5286d3b0f9f4e0356446f2896351bf770/weave-0.52.17-py3-none-any.whl", hash = "sha256:5772ef82521a033829c921115c5779399581a7ae06d81dfd527126e2115d16d4", size = 765887, upload-time = "2025-11-13T22:09:49.161Z" },
+    { url = "https://files.pythonhosted.org/packages/de/4b/6d4db7e28547a1ef639254b0b0499ab40bb492fd6bc3c06d99ead0b888dc/weave-0.52.20-py3-none-any.whl", hash = "sha256:0628293db2b8f861c54f87fd1c8807de3fe551a7bf46bcbf90af415a0cafc2ad", size = 782320, upload-time = "2025-11-26T22:45:42.863Z" },
 ]
 
 [[package]]
