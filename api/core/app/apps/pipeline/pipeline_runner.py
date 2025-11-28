@@ -2,6 +2,7 @@ import logging
 import time
 from typing import cast
 
+from controllers.common.context import request_context
 from core.app.apps.base_app_queue_manager import AppQueueManager
 from core.app.apps.pipeline.pipeline_config_manager import PipelineConfig
 from core.app.apps.workflow_app_runner import WorkflowBasedAppRunner
@@ -9,6 +10,7 @@ from core.app.entities.app_invoke_entities import (
     InvokeFrom,
     RagPipelineGenerateEntity,
 )
+from core.errors.error import GreeTokenExpiredError
 from core.variables.variables import RAGPipelineVariable, RAGPipelineVariableInput
 from core.workflow.entities.graph_init_params import GraphInitParams
 from core.workflow.enums import WorkflowType
@@ -27,6 +29,7 @@ from models.dataset import Document, Pipeline
 from models.enums import UserFrom
 from models.model import EndUser
 from models.workflow import Workflow
+from services.gree_sso import get_user_info
 
 logger = logging.getLogger(__name__)
 
@@ -57,12 +60,25 @@ class PipelineRunner(WorkflowBasedAppRunner):
             variable_loader=variable_loader,
             app_id=application_generate_entity.app_config.app_id,
         )
+        gree_data = request_context.get()
+        gree_mail = gree_data.get("gree_mail")
+        gree_token = gree_data.get("gree_token")
+        argument = gree_data.get("argument")
+        if gree_token:
+            user_info = get_user_info(gree_token)
+            if user_info:
+                gree_mail = user_info.OpenID
+            else:
+                raise GreeTokenExpiredError(f"token 已经过期，请重新登陆")
         self.application_generate_entity = application_generate_entity
         self.workflow_thread_pool_id = workflow_thread_pool_id
         self._workflow = workflow
         self._sys_user_id = system_user_id
         self._workflow_execution_repository = workflow_execution_repository
         self._workflow_node_execution_repository = workflow_node_execution_repository
+        self._gree_mail = gree_mail
+        self._gree_token = gree_token
+        self._argument = argument
 
     def _get_app_id(self) -> str:
         return self.application_generate_entity.app_config.app_id
@@ -118,6 +134,9 @@ class PipelineRunner(WorkflowBasedAppRunner):
                 datasource_type=self.application_generate_entity.datasource_type,
                 datasource_info=self.application_generate_entity.datasource_info,
                 invoke_from=self.application_generate_entity.invoke_from.value,
+                gree_mail=self._gree_mail,
+                gree_token=self._gree_token,
+                argument=self._argument,
             )
 
             rag_pipeline_variables = []

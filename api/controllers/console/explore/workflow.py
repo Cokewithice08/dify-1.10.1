@@ -28,6 +28,7 @@ from services.app_generate_service import AppGenerateService
 from services.errors.llm import InvokeRateLimitError
 
 from .. import console_ns
+from ...common.context import request_context
 
 logger = logging.getLogger(__name__)
 
@@ -50,8 +51,16 @@ class InstalledAppWorkflowRunApi(InstalledAppResource):
             reqparse.RequestParser()
             .add_argument("inputs", type=dict, required=True, nullable=False, location="json")
             .add_argument("files", type=list, required=False, location="json")
+            .add_argument("gree_mail", type=str, required=False, location="json")
+            .add_argument("gree_token", type=str, required=False, location="json")
+            .add_argument("argument", type=str, required=False, location="json")
         )
         args = parser.parse_args()
+        request_context.set({
+            "gree_mail": args["gree_mail"],
+            "gree_token": args["gree_token"],
+            "argument": args["argument"],
+        })
         try:
             response = AppGenerateService.generate(
                 app_model=app_model, user=current_user, args=args, invoke_from=InvokeFrom.EXPLORE, streaming=True

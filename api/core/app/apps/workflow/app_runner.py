@@ -3,10 +3,12 @@ import time
 from collections.abc import Sequence
 from typing import cast
 
+from controllers.common.context import request_context
 from core.app.apps.base_app_queue_manager import AppQueueManager
 from core.app.apps.workflow.app_config_manager import WorkflowAppConfig
 from core.app.apps.workflow_app_runner import WorkflowBasedAppRunner
 from core.app.entities.app_invoke_entities import InvokeFrom, WorkflowAppGenerateEntity
+from core.errors.error import GreeTokenExpiredError
 from core.workflow.enums import WorkflowType
 from core.workflow.graph_engine.command_channels.redis_channel import RedisChannel
 from core.workflow.graph_engine.layers.base import GraphEngineLayer
@@ -21,6 +23,7 @@ from extensions.ext_redis import redis_client
 from libs.datetime_utils import naive_utc_now
 from models.enums import UserFrom
 from models.workflow import Workflow
+from services.gree_sso import get_user_info
 
 logger = logging.getLogger(__name__)
 
@@ -49,12 +52,25 @@ class WorkflowAppRunner(WorkflowBasedAppRunner):
             app_id=application_generate_entity.app_config.app_id,
             graph_engine_layers=graph_engine_layers,
         )
+        gree_data = request_context.get()
+        gree_mail = gree_data.get("gree_mail")
+        gree_token = gree_data.get("gree_token")
+        argument = gree_data.get("argument")
+        if gree_token:
+            user_info = get_user_info(gree_token)
+            if user_info:
+                gree_mail = user_info.OpenID
+            else:
+                raise GreeTokenExpiredError(f"token 已经过期，请重新登陆")
         self.application_generate_entity = application_generate_entity
         self._workflow = workflow
         self._sys_user_id = system_user_id
         self._root_node_id = root_node_id
         self._workflow_execution_repository = workflow_execution_repository
         self._workflow_node_execution_repository = workflow_node_execution_repository
+        self._gree_mail = gree_mail
+        self._gree_token = gree_token
+        self._argument = argument
 
     def run(self):
         """
@@ -70,6 +86,9 @@ class WorkflowAppRunner(WorkflowBasedAppRunner):
             timestamp=int(naive_utc_now().timestamp()),
             workflow_id=app_config.workflow_id,
             workflow_execution_id=self.application_generate_entity.workflow_execution_id,
+            gree_mail=self._gree_mail,
+            gree_token=self._gree_token,
+            argument=self._argument,
         )
 
         # if only single iteration or single loop run is requested

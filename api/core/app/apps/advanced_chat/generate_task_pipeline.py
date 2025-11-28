@@ -11,6 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from constants.tts_auto_play_timeout import TTS_AUTO_PLAY_TIMEOUT, TTS_AUTO_PLAY_YIELD_CPU_TIME
+from controllers.common.context import request_context
 from core.app.apps.base_app_queue_manager import AppQueueManager, PublishFrom
 from core.app.apps.common.graph_runtime_state_support import GraphRuntimeStateSupport
 from core.app.apps.common.workflow_response_converter import WorkflowResponseConverter
@@ -60,6 +61,7 @@ from core.app.entities.task_entities import (
 from core.app.task_pipeline.based_generate_task_pipeline import BasedGenerateTaskPipeline
 from core.app.task_pipeline.message_cycle_manager import MessageCycleManager
 from core.base.tts import AppGeneratorTTSPublisher, AudioTrunk
+from core.errors.error import GreeTokenExpiredError
 from core.model_runtime.entities.llm_entities import LLMUsage
 from core.model_runtime.utils.encoders import jsonable_encoder
 from core.ops.ops_trace_manager import TraceQueueManager
@@ -73,6 +75,7 @@ from libs.datetime_utils import naive_utc_now
 from models import Account, Conversation, EndUser, Message, MessageFile
 from models.enums import CreatorUserRole
 from models.workflow import Workflow
+from services.gree_sso import get_user_info
 
 logger = logging.getLogger(__name__)
 
@@ -110,7 +113,16 @@ class AdvancedChatAppGenerateTaskPipeline(GraphRuntimeStateSupport):
             self._created_by_role = CreatorUserRole.ACCOUNT
         else:
             raise NotImplementedError(f"User type not supported: {type(user)}")
-
+        gree_data = request_context.get()
+        gree_mail = gree_data.get("gree_mail")
+        gree_token = gree_data.get("gree_token")
+        argument = gree_data.get("argument")
+        if gree_token:
+            user_info = get_user_info(gree_token)
+            if user_info:
+                gree_mail = user_info.OpenID
+            else:
+                raise GreeTokenExpiredError(f"token 已经过期，请重新登陆")
         self._workflow_system_variables = SystemVariable(
             query=message.query,
             files=application_generate_entity.files,
@@ -120,6 +132,9 @@ class AdvancedChatAppGenerateTaskPipeline(GraphRuntimeStateSupport):
             app_id=application_generate_entity.app_config.app_id,
             workflow_id=workflow.id,
             workflow_execution_id=application_generate_entity.workflow_run_id,
+            gree_mail=gree_mail,
+            gree_token=gree_token,
+            argument=argument,
         )
         self._workflow_response_converter = WorkflowResponseConverter(
             application_generate_entity=application_generate_entity,

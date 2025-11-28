@@ -5,6 +5,7 @@ from flask_restx import Resource, reqparse
 from werkzeug.exceptions import BadRequest, InternalServerError, NotFound
 
 import services
+from controllers.common.context import request_context
 from controllers.service_api import service_api_ns
 from controllers.service_api.app.error import (
     AppUnavailableError,
@@ -64,6 +65,9 @@ chat_parser = (
         help="Auto generate conversation name",
     )
     .add_argument("workflow_id", type=str, required=False, location="json", help="Workflow ID for advanced chat")
+    .add_argument("gree_mail", type=str, required=False, location="json")
+    .add_argument("gree_token", type=str, required=False, location="json")
+    .add_argument("argument", type=str, required=False, location="json")
 )
 
 
@@ -187,7 +191,11 @@ class ChatApi(Resource):
             raise NotChatAppError()
 
         args = chat_parser.parse_args()
-
+        request_context.set({
+            "gree_mail": args["gree_mail"],
+            "gree_token": args["gree_token"],
+            "argument": args["argument"],
+        })
         external_trace_id = get_external_trace_id(request)
         if external_trace_id:
             args["external_trace_id"] = external_trace_id

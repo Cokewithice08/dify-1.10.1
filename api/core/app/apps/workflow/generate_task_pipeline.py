@@ -7,6 +7,7 @@ from typing import Union
 from sqlalchemy.orm import Session
 
 from constants.tts_auto_play_timeout import TTS_AUTO_PLAY_TIMEOUT, TTS_AUTO_PLAY_YIELD_CPU_TIME
+from controllers.common.context import request_context
 from core.app.apps.base_app_queue_manager import AppQueueManager
 from core.app.apps.common.graph_runtime_state_support import GraphRuntimeStateSupport
 from core.app.apps.common.workflow_response_converter import WorkflowResponseConverter
@@ -50,6 +51,7 @@ from core.app.entities.task_entities import (
 )
 from core.app.task_pipeline.based_generate_task_pipeline import BasedGenerateTaskPipeline
 from core.base.tts import AppGeneratorTTSPublisher, AudioTrunk
+from core.errors.error import GreeTokenExpiredError
 from core.ops.ops_trace_manager import TraceQueueManager
 from core.workflow.enums import WorkflowExecutionStatus
 from core.workflow.repositories.draft_variable_repository import DraftVariableSaverFactory
@@ -60,6 +62,7 @@ from models import Account
 from models.enums import CreatorUserRole
 from models.model import EndUser
 from models.workflow import Workflow, WorkflowAppLog, WorkflowAppLogCreatedFrom
+from services.gree_sso import get_user_info
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +95,16 @@ class WorkflowAppGenerateTaskPipeline(GraphRuntimeStateSupport):
             self._user_id = user.id
             user_session_id = user.id
             self._created_by_role = CreatorUserRole.ACCOUNT
-
+        gree_data = request_context.get()
+        gree_mail = gree_data.get("gree_mail")
+        gree_token = gree_data.get("gree_token")
+        argument = gree_data.get("argument")
+        if gree_token:
+            user_info = get_user_info(gree_token)
+            if user_info:
+                gree_mail = user_info.OpenID
+            else:
+                raise GreeTokenExpiredError(f"token 已经过期，请重新登陆")
         self._application_generate_entity = application_generate_entity
         self._workflow_features_dict = workflow.features_dict
         self._workflow_execution_id = ""
@@ -105,6 +117,9 @@ class WorkflowAppGenerateTaskPipeline(GraphRuntimeStateSupport):
             app_id=application_generate_entity.app_config.app_id,
             workflow_id=workflow.id,
             workflow_execution_id=application_generate_entity.workflow_execution_id,
+            gree_mail=gree_mail,
+            gree_token=gree_token,
+            argument=argument,
         )
         self._workflow_response_converter = WorkflowResponseConverter(
             application_generate_entity=application_generate_entity,

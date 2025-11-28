@@ -1001,6 +1001,20 @@ class TenantService:
         db.session.commit()
         return tenant
 
+    @classmethod
+    def update_tenant(cls, tenant: Tenant):
+        db.session.add(tenant)
+        db.session.commit()
+
+    @staticmethod
+    def get_tenant_by_account_id(account_id: str) -> Tenant:
+        tenant_account = (db.session.query(TenantAccountJoin)
+                          .filter_by(account_id=account_id)
+                          .filter_by(role='owner').first())
+        if tenant_account:
+            tenant = (db.session.query(Tenant).filter_by(id=tenant_account.tenant_id).first())
+            return tenant
+
     @staticmethod
     def create_owner_tenant_if_not_exist(account: Account, name: str | None = None, is_setup: bool | None = False):
         """Check if user have a workspace or not"""

@@ -4,6 +4,7 @@ from flask_restx import reqparse
 from werkzeug.exceptions import InternalServerError, NotFound
 
 import services
+from controllers.common.context import request_context
 from controllers.web import web_ns
 from controllers.web.error import (
     AppUnavailableError,
@@ -182,10 +183,17 @@ class ChatApi(WebApiResource):
             .add_argument("conversation_id", type=uuid_value, location="json")
             .add_argument("parent_message_id", type=uuid_value, required=False, location="json")
             .add_argument("retriever_from", type=str, required=False, default="web_app", location="json")
+            .add_argument("gree_mail", type=str, required=False, location="json")
+            .add_argument("gree_token", type=str, required=False, location="json")
+            .add_argument("argument", type=str, required=False, location="json")
         )
 
         args = parser.parse_args()
-
+        request_context.set({
+            "gree_mail": args["gree_mail"],
+            "gree_token": args["gree_token"],
+            "argument": args["argument"],
+        })
         streaming = args["response_mode"] == "streaming"
         args["auto_generate_name"] = False
 

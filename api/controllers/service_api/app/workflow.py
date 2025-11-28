@@ -7,6 +7,7 @@ from flask_restx.inputs import int_range
 from sqlalchemy.orm import Session, sessionmaker
 from werkzeug.exceptions import BadRequest, InternalServerError, NotFound
 
+from controllers.common.context import request_context
 from controllers.service_api import service_api_ns
 from controllers.service_api.app.error import (
     CompletionRequestError,
@@ -47,6 +48,9 @@ workflow_run_parser = (
     .add_argument("inputs", type=dict, required=True, nullable=False, location="json")
     .add_argument("files", type=list, required=False, location="json")
     .add_argument("response_mode", type=str, choices=["blocking", "streaming"], location="json")
+    .add_argument("gree_mail", type=str, required=False, location="json")
+    .add_argument("gree_token", type=str, required=False, location="json")
+    .add_argument("argument", type=str, required=False, location="json")
 )
 
 workflow_log_parser = (
@@ -155,6 +159,11 @@ class WorkflowRunApi(Resource):
             raise NotWorkflowAppError()
 
         args = workflow_run_parser.parse_args()
+        request_context.set({
+            "gree_mail": args["gree_mail"],
+            "gree_token": args["gree_token"],
+            "argument": args["argument"],
+        })
         external_trace_id = get_external_trace_id(request)
         if external_trace_id:
             args["external_trace_id"] = external_trace_id

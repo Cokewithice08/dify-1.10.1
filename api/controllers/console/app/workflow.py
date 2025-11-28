@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from werkzeug.exceptions import Forbidden, InternalServerError, NotFound
 
 import services
+from controllers.common.context import request_context
 from controllers.console import console_ns
 from controllers.console.app.error import ConversationCompletedError, DraftWorkflowNotExist, DraftWorkflowNotSync
 from controllers.console.app.wraps import get_app_model
@@ -290,9 +291,18 @@ class AdvancedChatDraftWorkflowRunApi(Resource):
             .add_argument("files", type=list, location="json")
             .add_argument("conversation_id", type=uuid_value, location="json")
             .add_argument("parent_message_id", type=uuid_value, required=False, location="json")
+            .add_argument("gree_mail", type=str, required=False, location="json")
+            .add_argument("gree_token", type=str, required=False, location="json")
+            .add_argument("argument", type=str, required=False, location="json")
         )
 
         args = parser.parse_args()
+
+        request_context.set({
+            "gree_mail": args["gree_mail"],
+            "gree_token": args["gree_token"],
+            "argument": args["argument"],
+        })
 
         external_trace_id = get_external_trace_id(request)
         if external_trace_id:
@@ -535,9 +545,16 @@ class DraftWorkflowRunApi(Resource):
             reqparse.RequestParser()
             .add_argument("inputs", type=dict, required=True, nullable=False, location="json")
             .add_argument("files", type=list, required=False, location="json")
+            .add_argument("gree_mail", type=str, required=False, location="json")
+            .add_argument("gree_token", type=str, required=False, location="json")
+            .add_argument("argument", type=str, required=False, location="json")
         )
         args = parser.parse_args()
-
+        request_context.set({
+            "gree_mail": args["gree_mail"],
+            "gree_token": args["gree_token"],
+            "argument": args["argument"],
+        })
         external_trace_id = get_external_trace_id(request)
         if external_trace_id:
             args["external_trace_id"] = external_trace_id
@@ -615,9 +632,16 @@ class DraftWorkflowNodeRunApi(Resource):
             .add_argument("inputs", type=dict, required=True, nullable=False, location="json")
             .add_argument("query", type=str, required=False, location="json", default="")
             .add_argument("files", type=list, location="json", default=[])
+            .add_argument("gree_mail", type=str, required=False, location="json")
+            .add_argument("gree_token", type=str, required=False, location="json")
+            .add_argument("argument", type=str, required=False, location="json")
         )
         args = parser.parse_args()
-
+        request_context.set({
+            "gree_mail": args["gree_mail"],
+            "gree_token": args["gree_token"],
+            "argument": args["argument"],
+        })
         user_inputs = args.get("inputs")
         if user_inputs is None:
             raise ValueError("missing inputs")
