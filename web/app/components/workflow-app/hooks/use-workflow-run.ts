@@ -212,7 +212,8 @@ export const useWorkflowRun = () => {
       url = `/apps/${appDetail.id}/workflows/draft/run`
     }
 
-    let requestBody = {}
+    // let requestBody = {}
+    let requestBody: Record<string, any> = {}
 
     if (runMode === TriggerType.Schedule)
       requestBody = { node_id: options?.scheduleNodeId }
@@ -653,7 +654,18 @@ export const useWorkflowRun = () => {
       await runTriggerDebug(TriggerType.All)
       return
     }
-
+    const gree_mail = localStorage.getItem('gree_mail')
+    if (gree_mail) {
+      requestBody.gree_mail = gree_mail
+    }
+    const gree_token = localStorage.getItem('gree_token')
+    const argument = localStorage.getItem('argument')
+    if (gree_token) {
+      requestBody.gree_token = gree_token
+    }
+    if(argument){
+      requestBody.argument = argument
+    }
     ssePost(
       url,
       {

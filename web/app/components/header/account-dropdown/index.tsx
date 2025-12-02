@@ -130,7 +130,7 @@ export default function AppSelector() {
                     </MenuItem>
                   </div>
                   {!systemFeatures.branding.enabled && <>
-                    <div className='p-1'>
+                    {/* <div className='p-1'>
                       <MenuItem>
                         <Link
                           className={cn(itemClassName, 'group justify-between',
@@ -145,9 +145,9 @@ export default function AppSelector() {
                       </MenuItem>
                       <Support closeAccountDropdown={close} />
                       {IS_CLOUD_EDITION && isCurrentWorkspaceOwner && <Compliance />}
-                    </div>
+                    </div> */}
                     <div className='p-1'>
-                      <MenuItem>
+                      {/* <MenuItem>
                         <Link
                           className={cn(itemClassName, 'group justify-between',
                             'data-[active]:bg-state-base-hover',
@@ -173,7 +173,7 @@ export default function AppSelector() {
                             <GithubStar className='system-2xs-medium-uppercase text-text-tertiary' />
                           </div>
                         </Link>
-                      </MenuItem>
+                      </MenuItem> */}
                       {
                         document?.body?.getAttribute('data-public-site-about') !== 'hide' && (
                           <MenuItem>

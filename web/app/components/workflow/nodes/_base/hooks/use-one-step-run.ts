@@ -755,6 +755,9 @@ const useOneStepRun = <T>({
         else {
           const isStartNode = data.type === BlockEnum.Start
           const postData: Record<string, any> = {}
+          const gree_mail = localStorage.getItem("gree_mail")
+          const gree_token = localStorage.getItem("gree_token")
+          const argument = localStorage.getItem('argument')
           if (isStartNode) {
             const { '#sys.query#': query, '#sys.files#': files, ...inputs } = submitData
             if (isChatMode)
@@ -767,6 +770,11 @@ const useOneStepRun = <T>({
           else {
             postData.inputs = submitData
           }
+        postData.gree_mail = gree_mail
+        postData.gree_token = gree_token
+        if(argument){
+          postData.argument = argument
+        }
           res = await singleNodeRun(flowType, flowId!, id, postData) as any
         }
       }

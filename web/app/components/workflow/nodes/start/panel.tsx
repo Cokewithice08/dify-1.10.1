@@ -84,7 +84,41 @@ const Panel: FC<NodePanelProps<StartNodeType>> = ({
                   </div>
                 }
               />
+                          <VarItem
+                readonly
+                payload={{
+                  variable: 'sys.gree_mail',
+                } as any}
+                rightContent={
+                  <div className='text-xs font-normal text-text-tertiary'>
+                    String
+                  </div>
+                }
+              />
+              <VarItem
+                readonly
+                payload={{
+                  variable: 'sys.gree_token',
+                } as any}
+                rightContent={
+                  <div className='text-xs font-normal text-text-tertiary'>
+                    String
+                  </div>
+                }
+              />
+              <VarItem
+                readonly
+                payload={{
+                  variable: 'sys.argument',
+                } as any}
+                rightContent={
+                  <div className='text-xs font-normal text-text-tertiary'>
+                    String
+                  </div>
+                }
+              />
             </div>
+
           </>
         </Field>
       </div>

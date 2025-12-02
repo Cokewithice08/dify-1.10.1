@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState,useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useContext } from 'use-context-selector'
@@ -12,6 +12,7 @@ import I18NContext from '@/context/i18n'
 import { noop } from 'lodash-es'
 import { resolvePostLoginRedirect } from '../utils/post-login-redirect'
 import type { ResponseError } from '@/service/fetch'
+import GreeSSO from '@/app/components/base/chat/chat-with-history/sidebar/gree-sso'
 
 type MailAndPasswordAuthProps = {
   isInvite: boolean
@@ -30,6 +31,10 @@ export default function MailAndPasswordAuth({ isInvite, isEmailSetup, allowRegis
   const [password, setPassword] = useState('')
 
   const [isLoading, setIsLoading] = useState(false)
+  const [showGreeSSO, setShowGreeSSO] = useState(false)
+  const pathName = window.location.href
+  const [greeSSOUrl, setGreeSSOUrl] = useState('https://wfserver.gree.com/Sso/Oauth/Show?appID=0347f117-1b67-46a1-b4ec-a173f7bffa14&sourceUrl=' + pathName)
+  // const [greeSSOUrl, setGreeSSOUrl] = useState('https://wfserver.gree.com/Sso/Oauth/Show?appID=5f4e61c6-29a2-40b2-a62e-c99602dc1f30&sourceUrl=' + pathName)
 
   const handleEmailPasswordLogin = async () => {
     if (!email) {
@@ -91,71 +96,117 @@ export default function MailAndPasswordAuth({ isInvite, isEmailSetup, allowRegis
     }
   }
 
-  return <form onSubmit={noop}>
-    <div className='mb-3'>
-      <label htmlFor="email" className="system-md-semibold my-2 text-text-secondary">
-        {t('login.email')}
-      </label>
-      <div className="mt-1">
-        <Input
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          disabled={isInvite}
-          id="email"
-          type="email"
-          autoComplete="email"
-          placeholder={t('login.emailPlaceholder') || ''}
-          tabIndex={1}
-        />
-      </div>
-    </div>
+    useEffect(() => {
+      //1、先清除旧数据
+      const gree_mail_tmp = localStorage.getItem('gree_mail')
+      const gree_token_tmp = localStorage.getItem('gree_token')
+      if (gree_mail_tmp) {
+        localStorage.removeItem('gree_mail')
+      }
+      if (gree_token_tmp) {
+        localStorage.removeItem('gree_token')
+      }
+      // 获取URL参数
+      const urlSearchParams = new URLSearchParams(window.location.search);
+      // const consoleToken = urlSearchParams.get('console_token');
+      // const refreshToken = urlSearchParams.get('refresh_token');
+      const loginGreeMail = urlSearchParams.get('gree_mail');
+      const loginGreeToken = urlSearchParams.get('gree_token');
+      // 单点登录跳转逻辑
+      //  window.location.href = `https://wfserver.gree.com/Sso/Oauth/Show?appID=0347f117-1b67-46a1-b4ec-a173f7bffa14&sourceUrl=http://10.23.197.232/signin`
+      // 步骤2：验证并存储敏感数据
+      if (loginGreeMail && loginGreeToken) {
+          localStorage.setItem('gree_mail', loginGreeMail);
+          localStorage.setItem('gree_token', loginGreeToken);
+        
+        // 安全存储到 sessionStorage（会话级存储）
+        // localStorage.setItem('console_token', consoleToken);
+        // localStorage.setItem('refresh_token', refreshToken);
+  
+        // 步骤3：清除 URL 中的敏感参数
+        router.replace('/apps');
+      } else {
+        const greeSSOUrltmp = 'https://wfserver.gree.com/Sso/Oauth/Show?appID=0347f117-1b67-46a1-b4ec-a173f7bffa14&sourceUrl=' + pathName
+        // const greeSSOUrltmp = 'https://wfserver.gree.com/Sso/Oauth/Show?appID=5f4e61c6-29a2-40b2-a62e-c99602dc1f30&sourceUrl=' + pathName
+        setGreeSSOUrl(greeSSOUrltmp)
+        // getIp().then((res: IPStatusResponse) => {
+        //const greeSSOUrltmp = 'https://wfserver.gree.com/Sso/Oauth/Show?appID=0347f117-1b67-46a1-b4ec-a173f7bffa14&sourceUrl=http://' + res.ip_address + '/signin'
+        // const greeSSOUrltmp = 'https://wfserver.gree.com/Sso/Oauth/Show?appID=0347f117-1b67-46a1-b4ec-a173f7bffa14&sourceUrl=' + pathName
+        // setGreeSSOUrl(greeSSOUrltmp)
+        // })
+        // window.location.href = greeSSOUrl
+        setShowGreeSSO(true);
+      }
+  
+    }, [router]);
 
-    <div className='mb-3'>
-      <label htmlFor="password" className="my-2 flex items-center justify-between">
-        <span className='system-md-semibold text-text-secondary'>{t('login.password')}</span>
-        <Link
-          href={`/reset-password?${searchParams.toString()}`}
-          className={`system-xs-regular ${isEmailSetup ? 'text-components-button-secondary-accent-text' : 'pointer-events-none text-components-button-secondary-accent-text-disabled'}`}
-          tabIndex={isEmailSetup ? 0 : -1}
-          aria-disabled={!isEmailSetup}
-        >
-          {t('login.forget')}
-        </Link>
-      </label>
-      <div className="relative mt-1">
-        <Input
-          id="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter')
-              handleEmailPasswordLogin()
-          }}
-          type={showPassword ? 'text' : 'password'}
-          autoComplete="current-password"
-          placeholder={t('login.passwordPlaceholder') || ''}
-          tabIndex={2}
-        />
-        <div className="absolute inset-y-0 right-0 flex items-center">
-          <Button
-            type="button"
-            variant='ghost'
-            onClick={() => setShowPassword(!showPassword)}
-          >
-            {showPassword ? '👀' : '😝'}
-          </Button>
-        </div>
-      </div>
-    </div>
 
-    <div className='mb-2'>
-      <Button
-        tabIndex={2}
-        variant='primary'
-        onClick={handleEmailPasswordLogin}
-        disabled={isLoading || !email || !password}
-        className="w-full"
-      >{t('login.signBtn')}</Button>
-    </div>
-  </form>
+  return <div>{showGreeSSO && <GreeSSO openid='' sourceUrl={pathName}></GreeSSO>}</div>
+  // return <form onSubmit={noop}>
+  //   <div className='mb-3'>
+  //     <label htmlFor="email" className="system-md-semibold my-2 text-text-secondary">
+  //       {t('login.email')}
+  //     </label>
+  //     <div className="mt-1">
+  //       <Input
+  //         value={email}
+  //         onChange={e => setEmail(e.target.value)}
+  //         disabled={isInvite}
+  //         id="email"
+  //         type="email"
+  //         autoComplete="email"
+  //         placeholder={t('login.emailPlaceholder') || ''}
+  //         tabIndex={1}
+  //       />
+  //     </div>
+  //   </div>
+
+  //   <div className='mb-3'>
+  //     <label htmlFor="password" className="my-2 flex items-center justify-between">
+  //       <span className='system-md-semibold text-text-secondary'>{t('login.password')}</span>
+  //       <Link
+  //         href={`/reset-password?${searchParams.toString()}`}
+  //         className={`system-xs-regular ${isEmailSetup ? 'text-components-button-secondary-accent-text' : 'pointer-events-none text-components-button-secondary-accent-text-disabled'}`}
+  //         tabIndex={isEmailSetup ? 0 : -1}
+  //         aria-disabled={!isEmailSetup}
+  //       >
+  //         {t('login.forget')}
+  //       </Link>
+  //     </label>
+  //     <div className="relative mt-1">
+  //       <Input
+  //         id="password"
+  //         value={password}
+  //         onChange={e => setPassword(e.target.value)}
+  //         onKeyDown={(e) => {
+  //           if (e.key === 'Enter')
+  //             handleEmailPasswordLogin()
+  //         }}
+  //         type={showPassword ? 'text' : 'password'}
+  //         autoComplete="current-password"
+  //         placeholder={t('login.passwordPlaceholder') || ''}
+  //         tabIndex={2}
+  //       />
+  //       <div className="absolute inset-y-0 right-0 flex items-center">
+  //         <Button
+  //           type="button"
+  //           variant='ghost'
+  //           onClick={() => setShowPassword(!showPassword)}
+  //         >
+  //           {showPassword ? '👀' : '😝'}
+  //         </Button>
+  //       </div>
+  //     </div>
+  //   </div>
+
+  //   <div className='mb-2'>
+  //     <Button
+  //       tabIndex={2}
+  //       variant='primary'
+  //       onClick={handleEmailPasswordLogin}
+  //       disabled={isLoading || !email || !password}
+  //       className="w-full"
+  //     >{t('login.signBtn')}</Button>
+  //   </div>
+  // </form>
 }

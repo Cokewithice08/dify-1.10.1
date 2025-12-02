@@ -1,6 +1,7 @@
 import {
   useCallback,
   useState,
+  useEffect,
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -20,6 +21,8 @@ import DifyLogo from '@/app/components/base/logo/dify-logo'
 import type { ConversationItem } from '@/models/share'
 import cn from '@/utils/classnames'
 import { useGlobalPublicStore } from '@/context/global-public-context'
+import GreeSSO from './gree-sso'
+import MenuButton from './menu-button'
 
 type Props = {
   isPanel?: boolean
@@ -50,6 +53,29 @@ const Sidebar = ({ isPanel, panelVisible }: Props) => {
   const systemFeatures = useGlobalPublicStore(s => s.systemFeatures)
   const [showConfirm, setShowConfirm] = useState<ConversationItem | null>(null)
   const [showRename, setShowRename] = useState<ConversationItem | null>(null)
+  const [showGreeSSO, setShowGreeSSO] = useState(false)
+
+    // 步骤1：解析 URL 参数
+  const urlsearchParams = new URLSearchParams(window.location.search)
+  const greeMail = urlsearchParams.get('gree_mail')
+  const greeToken = urlsearchParams.get('gree_token')
+  const pathname = window.location.pathname
+  const origin = window.location.origin
+  
+  if (greeMail && greeToken) {
+    localStorage.setItem('gree_mail', greeMail)
+    localStorage.setItem('gree_token', greeToken)
+    window.history.replaceState({}, '', pathname)
+    }
+  const gree_mail = localStorage.getItem('gree_mail')
+    
+  useEffect(() => {
+    const gree_token = localStorage.getItem('gree_token')
+    if (!gree_token) {
+      setShowGreeSSO(true);
+    }
+  }, [])
+
 
   const handleOperate = useCallback((type: string, item: ConversationItem) => {
     if (type === 'pin')
@@ -138,6 +164,18 @@ const Sidebar = ({ isPanel, panelVisible }: Props) => {
           />
         )}
       </div>
+
+
+            {/* 左下角单点登录和用户信息按钮 */}
+      <div className='shrink-0 p-4'>
+        {showGreeSSO && <GreeSSO openid='' sourceUrl={pathname}></GreeSSO>}
+        {
+          gree_mail && (
+            <MenuButton />
+          )
+        }
+      </div>
+
       <div className='flex shrink-0 items-center justify-between p-3'>
         <MenuDropdown
           hideLogout={isInstalledApp}

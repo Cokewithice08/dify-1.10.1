@@ -52,6 +52,10 @@ const ChatWrapper = () => {
     initUserVariables,
   } = useChatWithHistoryContext()
 
+  const gree_mail = localStorage.getItem('gree_mail')
+  const gree_token = localStorage.getItem('gree_token')
+  const argument = localStorage.getItem('argument')
+
   const appConfig = useMemo(() => {
     const config = appParams || {}
 
@@ -135,6 +139,16 @@ const ChatWrapper = () => {
       inputs: formatBooleanInputs(inputsForms, currentConversationId ? currentConversationInputs : newConversationInputs),
       conversation_id: currentConversationId,
       parent_message_id: (isRegenerate ? parentAnswer?.id : getLastAnswer(chatList)?.id) || null,
+    }
+
+    if (gree_mail) {
+      data.gree_mail = gree_mail
+    }
+    if (gree_token) {
+      data.gree_token = gree_token
+    }
+    if(argument){
+      data.argument = argument
     }
 
     handleSend(

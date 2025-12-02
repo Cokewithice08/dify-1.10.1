@@ -222,7 +222,9 @@ const Result: FC<IResultProps> = ({
 
     if (!checkCanSend())
       return
-
+    const gree_mail = localStorage.getItem('gree_mail')
+    const gree_token = localStorage.getItem('gree_token')
+    const argument = localStorage.getItem('argument')
     // Process inputs: convert file entities to API format
     const processedInputs = { ...formatBooleanInputs(promptConfig?.prompt_variables, inputs) }
     promptConfig?.prompt_variables.forEach((variable) => {
@@ -239,6 +241,15 @@ const Result: FC<IResultProps> = ({
 
     const data: Record<string, any> = {
       inputs: processedInputs,
+    }
+    if (gree_mail) {
+      data.gree_mail = gree_mail
+    }
+    if (gree_token) {
+      data.gree_token = gree_token
+    }
+    if(argument){
+      data.argument = argument
     }
     if (visionConfig.enabled && completionFiles && completionFiles?.length > 0) {
       data.files = completionFiles.map((item) => {
