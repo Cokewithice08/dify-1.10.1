@@ -1,5 +1,5 @@
 import flask_login
-from flask import make_response, request
+from flask import make_response, request, redirect
 from flask_restx import Resource, reqparse
 
 import services
@@ -36,9 +36,11 @@ from libs.token import (
 )
 from services.account_service import AccountService, RegisterService, TenantService
 from services.billing_service import BillingService
-from services.errors.account import AccountRegisterError
+from services.errors.account import AccountRegisterError, RoleNotWorkSpaceError
 from services.errors.workspace import WorkSpaceNotAllowedCreateError, WorkspacesLimitExceededError
 from services.feature_service import FeatureService
+from services.gree_organization_service import WorkspaceAdmin, GreeOrganizationService
+from services.gree_sso import GreeSsoService
 
 
 @console_ns.route("/login")
@@ -128,6 +130,76 @@ class LogoutApi(Resource):
         clear_csrf_token_from_cookie(response)
 
         return response
+
+
+@console_ns.route("/gree_sso")
+class GreeSSOLoginApi(Resource):
+    @setup_required
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("callback", type=str, required=True, location="args", help="单点登录获取的参数")
+        parser.add_argument("sourceUrl", type=str, required=True, location="args", help="格力authcode单点登录")
+        args = parser.parse_args()
+        if "signin" in args["sourceUrl"]:
+            token_gree = GreeSsoService.gree_sso(args['callback'])
+            if not token_gree.workspace:
+                url_tmp = args["sourceUrl"] + "/welcome"
+                raise RoleNotWorkSpaceError(
+                    "The role does not have a workspace; please contact the administrator to request permission.")
+                # return redirect(url_tmp)
+            console_token = token_gree.access_token
+            refresh_token = token_gree.refresh_token
+            csrf_token = token_gree.csrf_token
+            redirect_uri = (args["sourceUrl"]+
+                            "?gree_token=" + token_gree.token + "&gree_mail=" + token_gree.mail)
+            response = redirect(redirect_uri)
+            set_access_token_to_cookie(request, response, console_token)
+            set_refresh_token_to_cookie(request, response, refresh_token)
+            set_csrf_token_to_cookie(request, response, csrf_token)
+            return response
+        else:
+            token_mail_gree = GreeSsoService.gree_sso_mail(args["callback"])
+            redirect_url = (args["sourceUrl"] + "?gree_mail=" + token_mail_gree.mail +
+                            "&gree_token=" + token_mail_gree.token)
+            return redirect(redirect_url)
+
+
+@console_ns.route("/gree_sso_get_token")
+class GreeSSOGetTokenApi(Resource):
+
+    @setup_required
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("callback", type=str, required=True, location="args", help="格力callback单点登录")
+        args = parser.parse_args()
+        token = GreeSsoService.gree_sso_get_token(args['callback'])
+        return {"access_token": token}
+
+
+@console_ns.route("/gree_sso_get_user_info")
+class GreeSSOGetUserInfoApi(Resource):
+    @setup_required
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("token", type=str, required=True, location="args", help="格力token单点登录")
+        args = parser.parse_args()
+        user_info = GreeSsoService.gree_sso_get_user_info(args['token'])
+        return {"user_info": user_info}
+
+
+@console_ns.route("/gree_create_workspace_by_admin")
+class GreeCreateWorkspaceByAdminApi(Resource):
+    @setup_required
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("workspace_param", type=list, required=True, location="json", help="添加workspaceAdmin")
+        args = parser.parse_args()
+        workspace_list = []
+        for workspace in args["workspace_param"]:
+            workspace_admin = WorkspaceAdmin(mail=workspace["mail"], parent_mail=workspace["parent_mail"])
+            workspace_list.append(workspace_admin)
+        GreeOrganizationService.create_workspace_admin(workspace_list)
+        return {"result": "success"}
 
 
 @console_ns.route("/reset-password")

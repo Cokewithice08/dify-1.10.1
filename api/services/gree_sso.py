@@ -4,7 +4,7 @@ import logging
 import requests
 from flask import request
 from pydantic import BaseModel
-
+from libs.helper import extract_remote_ip
 import models
 from extensions.ext_redis import redis_client
 
@@ -32,6 +32,7 @@ GREE_REDIS_KEY = 'gree:user:mail:'
 class TokenGree(BaseModel):
     access_token: str
     refresh_token: str
+    csrf_token: str
     token: str
     mail: str
     workspace: bool
@@ -156,8 +157,8 @@ def get_gree_token_pair(token: str) -> TokenGree:
         TenantService.update_tenant(tenant)
     if tenant:
         gree_workspace = True
-    token_pair = AccountService.login(account)
-    return TokenGree(access_token=token_pair.access_token, refresh_token=token_pair.refresh_token, token=token,
+    token_pair = AccountService.login(account=account,ip_address=extract_remote_ip(request))
+    return TokenGree(access_token=token_pair.access_token, refresh_token=token_pair.refresh_token, csrf_token=token_pair.csrf_token, token=token,
                      mail=user_info.AppAccount, workspace=gree_workspace)
 
 
