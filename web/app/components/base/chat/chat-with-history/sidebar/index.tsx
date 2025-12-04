@@ -79,13 +79,21 @@ const Sidebar = ({ isPanel, panelVisible }: Props) => {
       })
     }
   if(!gree_token){
-      Cookies.set("gree_mail",greeToken,{
+      Cookies.set("gree_token",greeToken,{
         path: '/',
           expires: 30,         // 30 天
           secure: true,
           sameSite: 'Lax'
       })
     }
+  if(!argument){
+    Cookies.set("argument","Please set the argument in the cookies.",{
+      path: '/',
+      expires: 30,         // 30 天
+      secure: true,
+      sameSite: 'Lax'
+    })
+  }
     window.history.replaceState({}, '', pathname)
     }
   //const gree_mail = localStorage.getItem('gree_mail')

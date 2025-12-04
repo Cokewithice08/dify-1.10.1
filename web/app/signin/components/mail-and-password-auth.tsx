@@ -125,6 +125,7 @@ export default function MailAndPasswordAuth({ isInvite, isEmailSetup, allowRegis
           // 存储到cookie中
           const cookieGreeMail = Cookies.get('gree_mail')
           const cookieGreeToken = Cookies.get('gree_token')
+          const cookieGreeArgument = Cookies.get('argument')
           if(!cookieGreeMail){
             Cookies.set("gree_mail",loginGreeMail,{
               path: '/',
@@ -134,14 +135,21 @@ export default function MailAndPasswordAuth({ isInvite, isEmailSetup, allowRegis
             })
           }
           if(!cookieGreeToken){
-            Cookies.set("gree_mail",loginGreeToken,{
+            Cookies.set("gree_token",loginGreeToken,{
               path: '/',
               expires: 30,         // 30 天
               secure: true,
               sameSite: 'Lax'
             })
           }
-  
+          if(!cookieGreeArgument){
+              Cookies.set("argument","Please set the argument in the cookies.",{
+                path: '/',
+                expires: 30,         // 30 天
+                secure: true,
+                sameSite: 'Lax'
+              })
+            }
         // 步骤3：清除 URL 中的敏感参数
         router.replace('/apps');
       } else {
