@@ -324,8 +324,11 @@ class ToolManager:
                 )
             )
         elif provider_type == ToolProviderType.WORKFLOW:
+            # workflow_provider_stmt = select(WorkflowToolProvider).where(
+            #     WorkflowToolProvider.tenant_id == tenant_id, WorkflowToolProvider.id == provider_id
+            # )
             workflow_provider_stmt = select(WorkflowToolProvider).where(
-                WorkflowToolProvider.tenant_id == tenant_id, WorkflowToolProvider.id == provider_id
+                 WorkflowToolProvider.id == provider_id
             )
             with Session(db.engine, expire_on_commit=False) as session, session.begin():
                 workflow_provider = session.scalar(workflow_provider_stmt)
@@ -338,7 +341,15 @@ class ToolManager:
             if controller_tools is None or len(controller_tools) == 0:
                 raise ToolProviderNotFoundError(f"workflow provider {provider_id} not found")
 
-            return controller.get_tools(tenant_id=workflow_provider.tenant_id)[0].fork_tool_runtime(
+            # return controller.get_tools(tenant_id=workflow_provider.tenant_id)[0].fork_tool_runtime(
+            #     runtime=ToolRuntime(
+            #         tenant_id=tenant_id,
+            #         credentials={},
+            #         invoke_from=invoke_from,
+            #         tool_invoke_from=tool_invoke_from,
+            #     )
+            # )
+            return controller.get_tools_all()[0].fork_tool_runtime(
                 runtime=ToolRuntime(
                     tenant_id=tenant_id,
                     credentials={},
@@ -629,9 +640,9 @@ class ToolManager:
             # MySQL: Use window function to achieve same result
             sql = """
                 SELECT id FROM (
-                    SELECT id, 
+                    SELECT id,
                            ROW_NUMBER() OVER (
-                               PARTITION BY tenant_id, provider 
+                               PARTITION BY tenant_id, provider
                                ORDER BY is_default DESC, created_at DESC
                            ) as rn
                     FROM tool_builtin_providers

@@ -191,6 +191,33 @@ class WorkflowToolProviderController(ToolProviderController):
             label=db_provider.label,
         )
 
+    def get_tools_all(self) -> list[WorkflowTool]:
+        """
+        fetch tools from database
+
+        :return: the tools
+        """
+        if self.tools is not None:
+            return self.tools
+
+        db_providers: WorkflowToolProvider | None = (
+            db.session.query(WorkflowToolProvider)
+            .where(
+                WorkflowToolProvider.app_id == self.provider_id,
+            )
+            .first()
+        )
+
+        if not db_providers:
+            return []
+        if not db_providers.app:
+            raise ValueError("app not found")
+
+        app = db_providers.app
+        self.tools = [self._get_db_provider_tool(db_providers, app)]
+
+        return self.tools
+
     def get_tools(self, tenant_id: str) -> list[WorkflowTool]:
         """
         fetch tools from database
