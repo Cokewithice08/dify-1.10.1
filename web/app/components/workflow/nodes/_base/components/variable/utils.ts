@@ -367,18 +367,18 @@ const formatItem = (
         variable: 'sys.files',
         type: VarType.arrayFile,
       })
-      res.vars.push({
-        variable: 'sys.gree_mail',
-        type: VarType.string,
-      })
-      res.vars.push({
-        variable: 'sys.gree_token',
-        type: VarType.string,
-      })
-      res.vars.push({
-        variable: 'sys.argument',
-        type: VarType.string,
-      })
+      // res.vars.push({
+      //   variable: 'sys.gree_mail',
+      //   type: VarType.string,
+      // })
+      // res.vars.push({
+      //   variable: 'sys.gree_token',
+      //   type: VarType.string,
+      // })
+      // res.vars.push({
+      //   variable: 'sys.argument',
+      //   type: VarType.string,
+      // })
       break
     }
 

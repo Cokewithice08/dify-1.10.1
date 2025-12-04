@@ -84,7 +84,7 @@ const Panel: FC<NodePanelProps<StartNodeType>> = ({
                   </div>
                 }
               />
-                          <VarItem
+                          {/* <VarItem
                 readonly
                 payload={{
                   variable: 'sys.gree_mail',
@@ -116,7 +116,7 @@ const Panel: FC<NodePanelProps<StartNodeType>> = ({
                     String
                   </div>
                 }
-              />
+              /> */}
             </div>
 
           </>
