@@ -73,6 +73,18 @@ export const getGlobalVars = (isChatMode: boolean): Var[] => {
         variable: 'sys.timestamp',
         type: VarType.number,
       },
+      {
+        variable: 'sys.gree_mail',
+        type: VarType.string,
+      },
+      {
+        variable: 'sys.gree_token',
+        type: VarType.string,
+      },
+      {
+        variable: 'sys.argument',
+        type: VarType.string,
+      },
     ] : []),
   ]
   return vars
