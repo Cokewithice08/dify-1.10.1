@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Chat from '../chat'
+import Cookies from 'js-cookie'
 import type {
   ChatConfig,
   ChatItem,
@@ -51,9 +52,15 @@ const ChatWrapper = () => {
     allInputsHidden,
     initUserVariables,
   } = useEmbeddedChatbotContext()
-  const gree_mail = localStorage.getItem('gree_mail')
-  const gree_token = localStorage.getItem('gree_token')
-  const argument = localStorage.getItem('argument')
+  // const gree_mail = localStorage.getItem('gree_mail')
+  // const gree_token = localStorage.getItem('gree_token')
+  // const argument = localStorage.getItem('argument')
+
+  const gree_mail = Cookies.get('gree_mail')
+  const gree_token = Cookies.get('gree_token')
+  const argument = Cookies.get('argument')
+
+
   const appConfig = useMemo(() => {
     const config = appParams || {}
 

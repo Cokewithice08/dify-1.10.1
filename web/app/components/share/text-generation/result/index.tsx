@@ -2,6 +2,7 @@
 import type { FC } from 'react'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useBoolean } from 'ahooks'
+import Cookies from 'js-cookie'
 import { t } from 'i18next'
 import { produce } from 'immer'
 import TextGenerationRes from '@/app/components/app/text-generate/item'
@@ -222,9 +223,13 @@ const Result: FC<IResultProps> = ({
 
     if (!checkCanSend())
       return
-    const gree_mail = localStorage.getItem('gree_mail')
-    const gree_token = localStorage.getItem('gree_token')
-    const argument = localStorage.getItem('argument')
+    // const gree_mail = localStorage.getItem('gree_mail')
+    // const gree_token = localStorage.getItem('gree_token')
+    // const argument = localStorage.getItem('argument')
+    const gree_mail = Cookies.get('gree_mail')
+    const gree_token = Cookies.get('gree_token')
+    const argument = Cookies.get('argument')
+  
     // Process inputs: convert file entities to API format
     const processedInputs = { ...formatBooleanInputs(promptConfig?.prompt_variables, inputs) }
     promptConfig?.prompt_variables.forEach((variable) => {

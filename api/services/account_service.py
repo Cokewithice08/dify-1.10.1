@@ -1266,6 +1266,15 @@ class TenantService:
         """Check if the account is a member of the tenant"""
         return TenantService.get_user_role(account, tenant) is not None
 
+    @staticmethod
+    def get_account_owner_tenant_by_account(account: Account) -> Tenant:
+        if account:
+            if account.name:
+                name = f"{account.name}'s Workspace"
+                tenant = (db.session.query(Tenant).filter_by(name=name).first())
+                # tenant = Tenant.query.filter_by(name=name).first()
+                return tenant
+
 
 class RegisterService:
     @classmethod

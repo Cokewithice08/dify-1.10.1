@@ -60,6 +60,9 @@ DOCUMENT_EXTENSIONS: set[str] = convert_to_lower_and_upper_set(_doc_extensions)
 COOKIE_NAME_ACCESS_TOKEN = "access_token"
 COOKIE_NAME_REFRESH_TOKEN = "refresh_token"
 COOKIE_NAME_CSRF_TOKEN = "csrf_token"
+COOKIE_NAME_GREE_TOKEN = "gree_token"
+COOKIE_NAME_GREE_MAIL = "gree_mail"
+COOKIE_NAME_GREE_ARGUMENT = "argument"
 
 # webapp
 COOKIE_NAME_WEBAPP_ACCESS_TOKEN = "webapp_access_token"

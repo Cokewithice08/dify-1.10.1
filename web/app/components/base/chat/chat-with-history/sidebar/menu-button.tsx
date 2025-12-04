@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Avatar from '@/app/components/base/avatar'
-
+import Cookies from 'js-cookie'
 const MenuButton = () => {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -26,8 +26,12 @@ const MenuButton = () => {
     const menuItems = [
         { id: 1, label: '退出登录' }
     ];
-    const gree_mail = localStorage.getItem('gree_mail')
-    const gree_token = localStorage.getItem('gree_token')
+    // const gree_mail = localStorage.getItem('gree_mail')
+    // const gree_token = localStorage.getItem('gree_token')
+    const gree_mail = Cookies.get('gree_mail')
+    const gree_token = Cookies.get('gree_token')
+    const argument = Cookies.get('argument')
+  
     return (
         <div className="relative">
             {/* 合并后的按钮 */}
@@ -56,9 +60,15 @@ const MenuButton = () => {
                             className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                             onClick={() => {
                                 // 清除这个gree_mail
-                                localStorage.removeItem('gree_mail')
+                                Cookies.remove("gree_mail",{
+                                    path: '/'
+                                })
+                                // localStorage.removeItem('gree_mail')
                                 if (gree_token) {
-                                    localStorage.removeItem('gree_token')
+                                    //localStorage.removeItem('gree_token')
+                                    Cookies.remove("gree_token",{
+                                        path: '/'
+                                    })
                                 }
                                 setIsOpen(false);
                                 window.location.reload();

@@ -3,6 +3,7 @@ import {
   useState,
   useEffect,
 } from 'react'
+import Cookies from 'js-cookie'
 import { useTranslation } from 'react-i18next'
 import {
   RiEditBoxLine,
@@ -61,16 +62,36 @@ const Sidebar = ({ isPanel, panelVisible }: Props) => {
   const greeToken = urlsearchParams.get('gree_token')
   const pathname = window.location.pathname
   const origin = window.location.origin
-  
+  const gree_mail = Cookies.get('gree_mail')
+  const gree_token = Cookies.get('gree_token')
+  const argument = Cookies.get('argument')
+
+
   if (greeMail && greeToken) {
-    localStorage.setItem('gree_mail', greeMail)
-    localStorage.setItem('gree_token', greeToken)
+    // localStorage.setItem('gree_mail', greeMail)
+    // localStorage.setItem('gree_token', greeToken)
+    if(!gree_mail){
+      Cookies.set("gree_mail",greeMail,{
+        path: '/',
+        expires: 30,         // 30 天
+        secure: true,
+        sameSite: 'Lax'
+      })
+    }
+  if(!gree_token){
+      Cookies.set("gree_mail",greeToken,{
+        path: '/',
+          expires: 30,         // 30 天
+          secure: true,
+          sameSite: 'Lax'
+      })
+    }
     window.history.replaceState({}, '', pathname)
     }
-  const gree_mail = localStorage.getItem('gree_mail')
+  //const gree_mail = localStorage.getItem('gree_mail')
     
   useEffect(() => {
-    const gree_token = localStorage.getItem('gree_token')
+    //const gree_token = localStorage.getItem('gree_token')
     if (!gree_token) {
       setShowGreeSSO(true);
     }

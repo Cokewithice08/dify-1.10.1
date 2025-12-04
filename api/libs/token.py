@@ -14,7 +14,7 @@ from constants import (
     COOKIE_NAME_REFRESH_TOKEN,
     COOKIE_NAME_WEBAPP_ACCESS_TOKEN,
     HEADER_NAME_CSRF_TOKEN,
-    HEADER_NAME_PASSPORT,
+    HEADER_NAME_PASSPORT, COOKIE_NAME_GREE_TOKEN, COOKIE_NAME_GREE_MAIL, COOKIE_NAME_GREE_ARGUMENT,
 )
 from libs.passport import PassportService
 
@@ -135,6 +135,45 @@ def set_csrf_token_to_cookie(request: Request, response: Response, token: str):
         secure=is_secure(),
         samesite="Lax",
         max_age=int(60 * dify_config.ACCESS_TOKEN_EXPIRE_MINUTES),
+        path="/",
+    )
+
+
+def set_gree_token_to_cookie(request: Request, response: Response, token: str):
+    response.set_cookie(
+        _real_cookie_name(COOKIE_NAME_GREE_TOKEN),
+        value=token,
+        httponly=False,
+        domain=_cookie_domain(),
+        secure=is_secure(),
+        samesite="Lax",
+        max_age=int(60 * 60 * 24 * dify_config.REFRESH_TOKEN_EXPIRE_DAYS),
+        path="/",
+    )
+
+
+def set_gree_mail_to_cookie(request: Request, response: Response, token: str):
+    response.set_cookie(
+        _real_cookie_name(COOKIE_NAME_GREE_MAIL),
+        value=token,
+        httponly=False,
+        domain=_cookie_domain(),
+        secure=is_secure(),
+        samesite="Lax",
+        max_age=int(60 * 60 * 24 * dify_config.REFRESH_TOKEN_EXPIRE_DAYS),
+        path="/",
+    )
+
+
+def set_gree_argument_to_cookie(request: Request, response: Response, token: str):
+    response.set_cookie(
+        _real_cookie_name(COOKIE_NAME_GREE_ARGUMENT),
+        value=token,
+        httponly=False,
+        domain=_cookie_domain(),
+        secure=is_secure(),
+        samesite="Lax",
+        max_age=int(60 * 60 * 24 * dify_config.REFRESH_TOKEN_EXPIRE_DAYS),
         path="/",
     )
 

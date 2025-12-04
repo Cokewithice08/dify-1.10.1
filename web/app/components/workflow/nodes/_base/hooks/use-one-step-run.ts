@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { unionBy } from 'lodash-es'
+import Cookies from 'js-cookie'
 import { produce } from 'immer'
 import {
   useIsChatMode,
@@ -755,9 +756,13 @@ const useOneStepRun = <T>({
         else {
           const isStartNode = data.type === BlockEnum.Start
           const postData: Record<string, any> = {}
-          const gree_mail = localStorage.getItem("gree_mail")
-          const gree_token = localStorage.getItem("gree_token")
-          const argument = localStorage.getItem('argument')
+          // const gree_mail = localStorage.getItem("gree_mail")
+          // const gree_token = localStorage.getItem("gree_token")
+          // const argument = localStorage.getItem('argument')
+          const gree_mail = Cookies.get('gree_mail')
+          const gree_token = Cookies.get('gree_token')
+          const argument = Cookies.get('argument')
+        
           if (isStartNode) {
             const { '#sys.query#': query, '#sys.files#': files, ...inputs } = submitData
             if (isChatMode)

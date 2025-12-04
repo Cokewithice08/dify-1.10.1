@@ -32,7 +32,7 @@ from libs.token import (
     extract_refresh_token,
     set_access_token_to_cookie,
     set_csrf_token_to_cookie,
-    set_refresh_token_to_cookie,
+    set_refresh_token_to_cookie, set_gree_token_to_cookie, set_gree_mail_to_cookie,
 )
 from services.account_service import AccountService, RegisterService, TenantService
 from services.billing_service import BillingService
@@ -156,12 +156,17 @@ class GreeSSOLoginApi(Resource):
             set_access_token_to_cookie(request, response, console_token)
             set_refresh_token_to_cookie(request, response, refresh_token)
             set_csrf_token_to_cookie(request, response, csrf_token)
+            set_gree_token_to_cookie(request, response,token_gree.token)
+            set_gree_mail_to_cookie(request, response, token_gree.mail)
             return response
         else:
             token_mail_gree = GreeSsoService.gree_sso_mail(args["callback"])
             redirect_url = (args["sourceUrl"] + "?gree_mail=" + token_mail_gree.mail +
                             "&gree_token=" + token_mail_gree.token)
-            return redirect(redirect_url)
+            response = redirect(redirect_url)
+            set_gree_token_to_cookie(request, response,token_mail_gree.token)
+            set_gree_mail_to_cookie(request, response, token_mail_gree.mail)
+            return response
 
 
 @console_ns.route("/gree_sso_get_token")

@@ -20,6 +20,7 @@ import { useFeaturesStore } from '@/app/components/base/features/hooks'
 import { AudioPlayerManager } from '@/app/components/base/audio-btn/audio.player.manager'
 import type AudioPlayer from '@/app/components/base/audio-btn/audio'
 import type { VersionHistory } from '@/types/workflow'
+import Cookies from 'js-cookie'
 import { noop } from 'lodash-es'
 import { useNodesSyncDraft } from './use-nodes-sync-draft'
 import { useInvalidAllLastRun } from '@/service/use-workflow'
@@ -654,12 +655,17 @@ export const useWorkflowRun = () => {
       await runTriggerDebug(TriggerType.All)
       return
     }
-    const gree_mail = localStorage.getItem('gree_mail')
+    const gree_mail = Cookies.get('gree_mail')
+    const gree_token = Cookies.get('gree_token')
+    const argument = Cookies.get('argument')
+  
+
+    // const gree_mail = localStorage.getItem('gree_mail')
     if (gree_mail) {
       requestBody.gree_mail = gree_mail
     }
-    const gree_token = localStorage.getItem('gree_token')
-    const argument = localStorage.getItem('argument')
+    // const gree_token = localStorage.getItem('gree_token')
+    // const argument = localStorage.getItem('argument')
     if (gree_token) {
       requestBody.gree_token = gree_token
     }

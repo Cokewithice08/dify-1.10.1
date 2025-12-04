@@ -13,6 +13,7 @@ import { noop } from 'lodash-es'
 import { resolvePostLoginRedirect } from '../utils/post-login-redirect'
 import type { ResponseError } from '@/service/fetch'
 import GreeSSO from '@/app/components/base/chat/chat-with-history/sidebar/gree-sso'
+import Cookies from 'js-cookie'
 
 type MailAndPasswordAuthProps = {
   isInvite: boolean
@@ -100,12 +101,14 @@ export default function MailAndPasswordAuth({ isInvite, isEmailSetup, allowRegis
       //1、先清除旧数据
       const gree_mail_tmp = localStorage.getItem('gree_mail')
       const gree_token_tmp = localStorage.getItem('gree_token')
+
       if (gree_mail_tmp) {
         localStorage.removeItem('gree_mail')
       }
       if (gree_token_tmp) {
         localStorage.removeItem('gree_token')
       }
+
       // 获取URL参数
       const urlSearchParams = new URLSearchParams(window.location.search);
       // const consoleToken = urlSearchParams.get('console_token');
@@ -116,12 +119,28 @@ export default function MailAndPasswordAuth({ isInvite, isEmailSetup, allowRegis
       //  window.location.href = `https://wfserver.gree.com/Sso/Oauth/Show?appID=0347f117-1b67-46a1-b4ec-a173f7bffa14&sourceUrl=http://10.23.197.232/signin`
       // 步骤2：验证并存储敏感数据
       if (loginGreeMail && loginGreeToken) {
-          localStorage.setItem('gree_mail', loginGreeMail);
-          localStorage.setItem('gree_token', loginGreeToken);
+          // localStorage.setItem('gree_mail', loginGreeMail);
+          // localStorage.setItem('gree_token', loginGreeToken);
         
-        // 安全存储到 sessionStorage（会话级存储）
-        // localStorage.setItem('console_token', consoleToken);
-        // localStorage.setItem('refresh_token', refreshToken);
+          // 存储到cookie中
+          const cookieGreeMail = Cookies.get('gree_mail')
+          const cookieGreeToken = Cookies.get('gree_token')
+          if(!cookieGreeMail){
+            Cookies.set("gree_mail",loginGreeMail,{
+              path: '/',
+              expires: 30,         // 30 天
+              secure: true,
+              sameSite: 'Lax'
+            })
+          }
+          if(!cookieGreeToken){
+            Cookies.set("gree_mail",loginGreeToken,{
+              path: '/',
+              expires: 30,         // 30 天
+              secure: true,
+              sameSite: 'Lax'
+            })
+          }
   
         // 步骤3：清除 URL 中的敏感参数
         router.replace('/apps');
