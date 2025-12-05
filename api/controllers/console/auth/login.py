@@ -33,6 +33,7 @@ from libs.token import (
     set_access_token_to_cookie,
     set_csrf_token_to_cookie,
     set_refresh_token_to_cookie, set_gree_token_to_cookie, set_gree_mail_to_cookie, set_gree_argument_to_cookie,
+    clear_gree_token_from_cookie, clear_gree_mail_from_cookie, extract_gree_token_from_cookie,
 )
 from services.account_service import AccountService, RegisterService, TenantService
 from services.billing_service import BillingService
@@ -123,12 +124,16 @@ class LogoutApi(Resource):
             AccountService.logout(account=account)
             flask_login.logout_user()
             response = make_response({"result": "success"})
-
+        # extract cookie gree_token logout
+        gree_token = extract_gree_token_from_cookie(request)
+        if gree_token:
+            GreeSsoService.gree_sso_sign_out(gree_token)
         # Clear cookies on logout
         clear_access_token_from_cookie(response)
         clear_refresh_token_from_cookie(response)
         clear_csrf_token_from_cookie(response)
-
+        clear_gree_token_from_cookie(response)
+        clear_gree_mail_from_cookie(response)
         return response
 
 

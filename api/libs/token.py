@@ -78,6 +78,10 @@ def extract_csrf_token_from_cookie(request: Request) -> str | None:
     return request.cookies.get(_real_cookie_name(COOKIE_NAME_CSRF_TOKEN))
 
 
+def extract_gree_token_from_cookie(request: Request) -> str | None:
+    return request.cookies.get(COOKIE_NAME_GREE_TOKEN)
+
+
 def extract_access_token(request: Request) -> str | None:
     def _try_extract_from_cookie(request: Request) -> str | None:
         return request.cookies.get(_real_cookie_name(COOKIE_NAME_ACCESS_TOKEN))
@@ -210,6 +214,14 @@ def clear_refresh_token_from_cookie(response: Response):
 
 def clear_csrf_token_from_cookie(response: Response):
     _clear_cookie(response, COOKIE_NAME_CSRF_TOKEN, http_only=False)
+
+
+def clear_gree_token_from_cookie(response: Response):
+    _clear_cookie(response, COOKIE_NAME_GREE_TOKEN)
+
+
+def clear_gree_mail_from_cookie(response: Response):
+    _clear_cookie(response, COOKIE_NAME_GREE_MAIL)
 
 
 def build_force_logout_cookie_headers() -> list[str]:
