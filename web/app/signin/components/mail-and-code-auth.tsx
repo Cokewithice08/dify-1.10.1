@@ -97,6 +97,7 @@ export default function MailAndCodeAuth({ isInvite }: MailAndCodeAuthProps) {
       router.replace('/apps');
     } else {
       const greeSSOUrltmp = 'https://wfserver.gree.com/Sso/Oauth/Show?appID=0347f117-1b67-46a1-b4ec-a173f7bffa14&sourceUrl=' + pathName
+      // const greeSSOUrltmp = 'https://wfserver.gree.com/Sso/Oauth/Show?appID=5f4e61c6-29a2-40b2-a62e-c99602dc1f30&sourceUrl=' + pathName
       setGreeSSOUrl(greeSSOUrltmp)
       // getIp().then((res: IPStatusResponse) => {
       //const greeSSOUrltmp = 'https://wfserver.gree.com/Sso/Oauth/Show?appID=0347f117-1b67-46a1-b4ec-a173f7bffa14&sourceUrl=http://' + res.ip_address + '/signin'
