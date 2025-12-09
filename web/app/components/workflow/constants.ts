@@ -68,24 +68,25 @@ export const getGlobalVars = (isChatMode: boolean): Var[] => {
       variable: 'sys.workflow_run_id',
       type: VarType.string,
     },
+    {
+      variable: 'sys.gree_mail',
+      type: VarType.string,
+    },
+    {
+      variable: 'sys.gree_token',
+      type: VarType.string,
+    },
+    {
+      variable: 'sys.argument',
+      type: VarType.string,
+    },
     ...((isInWorkflow && !isChatMode) ? [
       {
         variable: 'sys.timestamp',
         type: VarType.number,
       },
-      {
-        variable: 'sys.gree_mail',
-        type: VarType.string,
-      },
-      {
-        variable: 'sys.gree_token',
-        type: VarType.string,
-      },
-      {
-        variable: 'sys.argument',
-        type: VarType.string,
-      },
-    ] : []),
+    ] 
+    : []),
   ]
   return vars
 }
